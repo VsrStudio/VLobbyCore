@@ -87,7 +87,7 @@ class EventListener implements Listener
         $this->togglePlayerVisibility($player);
         break;
 
-        case "ReportPlayer":
+        case "Cosmetic":
             $this->plugin->getServer()->getCommandMap()->dispatch($player, "report");
             break;
 
@@ -95,11 +95,11 @@ class EventListener implements Listener
             LobbyCore::getInstance()->getUI()->getGames($player);
             break;
 
-        case "InfoUI":
+        case "Social":
             LobbyCore::getInstance()->getUI()->getInfo($player);
             break;
 
-        case "Lobby":
+        case "Profile":
             $this->plugin->getServer()->getCommandMap()->dispatch($player, "hub");
             break;
     }
