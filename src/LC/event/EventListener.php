@@ -19,6 +19,8 @@ use pocketmine\Server;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat as MG;
 use pocketmine\event\player\PlayerInteractEvent;
+use pocketmine\world\particle\HugeExplodeParticle;
+use pocketmine\world\sound\PopSound;
 
 use Vecnavium\FormsUI\Form;
 use Vecnavium\FormsUI\FormAPI;
@@ -45,17 +47,17 @@ class EventListener implements Listener
         $item1 = VanillaItems::GRAY_DYE();
         $item1->setCustomName("§7Hide Player");
 
-        $item2 = VanillaBlocks::ANVIL()->asItem();
-        $item2->setCustomName("ReportPlayer");
+        $item2 = VanillaBlocks::POPPY()->asItem();
+        $item2->setCustomName("Cosmetic");
 
         $item3 = VanillaItems::COMPASS();
         $item3->setCustomName("Teleporter");
 
         $item4 = VanillaItems::POPPED_CHORUS_FRUIT();
-        $item4->setCustomName("InfoUI");
+        $item4->setCustomName("Social");
 
-        $item5 = VanillaItems::NETHER_STAR();
-        $item5->setCustomName("Lobby");
+        $item5 = VanillaBlocks::MOB_HEAD()->setSkullType(SkullType::PLAYER())->asItem();
+        $item5->setCustomName("Profile");
 
         $player->getInventory()->setItem(0, $item1);
         $player->getInventory()->setItem(1, $item2);
@@ -108,22 +110,21 @@ class EventListener implements Listener
         $name = $player->getName();
 
         if (isset($this->hiddenPlayers[$name])) {
-            // Jika pemain sudah menyembunyikan orang lain, maka tampilkan kembali
+
             unset($this->hiddenPlayers[$name]);
             foreach (Server::getInstance()->getOnlinePlayers() as $p) {
                 $player->showPlayer($p);
             }
 
-            // Ubah item menjadi Gray Dye (Pemain terlihat)
             $newItem = VanillaItems::GRAY_DYE();
             $newItem->setCustomName("§7Hide Player");
             $player->getInventory()->setItem(0, $newItem);
 
-            $player->sendMessage(MG::GREEN . "Semua pemain telah ditampilkan.");
+            $player->sendMessage(MG::GREEN . "All players have been featured.");
             $player->getWorld()->addParticle($player->getPosition(), new HugeExplodeParticle());
             $player->getWorld()->addSound($player->getPosition(), new PopSound());
         } else {
-            // Jika pemain belum menyembunyikan, maka sembunyikan
+
             $this->hiddenPlayers[$name] = true;
             foreach (Server::getInstance()->getOnlinePlayers() as $p) {
                 if ($p !== $player) {
@@ -131,12 +132,11 @@ class EventListener implements Listener
                 }
             }
 
-            // Ubah item menjadi Lime Dye (Pemain tersembunyi)
             $newItem = VanillaItems::LIME_DYE();
             $newItem->setCustomName("§aShow Player");
             $player->getInventory()->setItem(0, $newItem);
 
-            $player->sendMessage(MG::RED . "Semua pemain telah disembunyikan.");
+            $player->sendMessage(MG::RED . "All players have been hidden.");
             $player->getWorld()->addParticle($player->getPosition(), new HugeExplodeParticle());
             $player->getWorld()->addSound($player->getPosition(), new PopSound());
         }
