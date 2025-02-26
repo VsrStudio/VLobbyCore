@@ -73,25 +73,35 @@ class EventListener implements Listener
         Server::getInstance()->broadcastMessage(str_replace(["{player}"], [$player->getName()], $this->plugin->getConfig()->get("Quit-Message")));
     }
 	
-    public function onClick(PlayerInteractEvent $event){
-        $player = $event->getPlayer();
-        $itn = $player->getInventory()->getItemInHand()->getCustomName();
-        if ($itn == "Cosmetics") {
-            LobbyCore::getInstance()->getUI()->getCosmetics($player);
-        }
-	if ($itn == "ReportPlayer"){
+    public function onClick(PlayerInteractEvent $event)
+    {
+    $player = $event->getPlayer();
+    $item = $player->getInventory()->getItemInHand();
+    $itemName = $item->getCustomName();
+
+    switch ($itemName) {
+        case "§7Hide Player":
+        case "§aShow Player":
+        $this->togglePlayerVisibility($player);
+        break;
+
+        case "ReportPlayer":
             $this->plugin->getServer()->getCommandMap()->dispatch($player, "report");
-        }
-	if ($itn == "Teleporter") {
+            break;
+
+        case "Teleporter":
             LobbyCore::getInstance()->getUI()->getGames($player);
-        }
-        if ($itn == "InfoUI") {
+            break;
+
+        case "InfoUI":
             LobbyCore::getInstance()->getUI()->getInfo($player);
-        }
-	if ($itn == "Lobby"){
+            break;
+
+        case "Lobby":
             $this->plugin->getServer()->getCommandMap()->dispatch($player, "hub");
-        }
+            break;
     }
+}
 
     private function togglePlayerVisibility(Player $player)
 	{
