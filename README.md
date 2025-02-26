@@ -1,5 +1,6 @@
 # LobbyCore
-LobbyCore Configurable API 4.0.0 For MegaHosting Community
+VLobbyCore Configurable API 5.0.0
+Replica Venity LobbyCore
 
 # Commands
 /hub - Back to the lobby
