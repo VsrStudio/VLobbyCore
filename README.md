@@ -1,6 +1,6 @@
 # LobbyCore
 VLobbyCore Configurable API 5.0.0
-Replica Venity LobbyCore
+- Replica Venity LobbyCore
 
 # Commands
 /hub - Back to the lobby
@@ -8,6 +8,7 @@ Replica Venity LobbyCore
 
 # Added
 
+- Hide Player And Show - Cosmetic - Games - Social - Profile
 - Protection Added
 - Items Added
 - Join And Quit Added
