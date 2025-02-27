@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace LC\event;
+namespace LC\ui;
 
 use pocketmine\player\Player;
 use pocketmine\Server;
