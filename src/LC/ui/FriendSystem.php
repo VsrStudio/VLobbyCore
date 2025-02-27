@@ -7,7 +7,6 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\player\Player;
-use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
 use jojoe77777\FormAPI\SimpleForm;
 use jojoe77777\FormAPI\CustomForm;
@@ -16,10 +15,8 @@ class FriendSystem {
 
     private string $dataFolder;
 
-    public function onEnable(): void {
-        $this->dataFolder = $this->getDataFolder();
-        @mkdir($this->dataFolder);
-        $this->getServer()->getPluginManager()->registerEvents($this, $this);
+    public function __construct(string $dataFolder) {
+        $this->dataFolder = $dataFolder;
     }
 
     public function onJoin(PlayerJoinEvent $event): void {
