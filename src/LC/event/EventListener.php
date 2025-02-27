@@ -45,19 +45,19 @@ class EventListener implements Listener
         $player->teleport(Server::getInstance()->getWorldManager()->getDefaultWorld()->getSafeSpawn());
 
         $item1 = VanillaItems::GRAY_DYE();
-        $item1->setCustomName("§7Hide Player");
+        $item1->setCustomName("§7Hide Player (Hold / Right Click)");
 
         $item2 = VanillaBlocks::POPPY()->asItem();
-        $item2->setCustomName("Cosmetic");
+        $item2->setCustomName("Cosmetic §7(Hold / Right Click)");
 
         $item3 = VanillaItems::COMPASS();
-        $item3->setCustomName("Teleporter");
+        $item3->setCustomName("§aServer Selector §7(Hold / Right Click)");
 
         $item4 = VanillaItems::POPPED_CHORUS_FRUIT();
-        $item4->setCustomName("Social");
+        $item4->setCustomName("§dSocial §7(Hold / Right Click)");
 
         $item5 = VanillaBlocks::MOB_HEAD()->setSkullType(SkullType::PLAYER())->asItem();
-        $item5->setCustomName("Profile");
+        $item5->setCustomName("§eProfile §7(Hold / Right Click)");
 
         $player->getInventory()->setItem(0, $item1);
         $player->getInventory()->setItem(1, $item2);
@@ -82,24 +82,24 @@ class EventListener implements Listener
     $itemName = $item->getCustomName();
 
     switch ($itemName) {
-        case "§7Hide Player":
-        case "§aShow Player":
+        case "§7Hide Player (Hold / Right Click)":
+        case "§aShow Player §7(Hold / Right Click)":
         $this->togglePlayerVisibility($player);
         break;
 
-        case "Cosmetic":
+        case "§cCosmetic §7(Hold / Right Click)":
             $this->plugin->getServer()->getCommandMap()->dispatch($player, "report");
             break;
 
-        case "Teleporter":
+        case "§aServer Selector §7(Hold / Right Click)":
             LobbyCore::getInstance()->getUI()->getGames($player);
             break;
 
-        case "Social":
+        case "§dSocial §7(Hold / Right Click)":
             LobbyCore::getInstance()->getUI()->getInfo($player);
             break;
 
-        case "Profile":
+        case "§eProfile §7(Hold / Right Click)":
             $this->plugin->getServer()->getCommandMap()->dispatch($player, "hub");
             break;
     }
@@ -117,10 +117,10 @@ class EventListener implements Listener
             }
 
             $newItem = VanillaItems::GRAY_DYE();
-            $newItem->setCustomName("§7Hide Player");
+            $newItem->setCustomName("§7Hide Player (Hold / Right Click)");
             $player->getInventory()->setItem(0, $newItem);
 
-            $player->sendMessage(MG::GREEN . "All players have been featured.");
+            $player->sendMessage(MG::GREEN . "All players have been show.");
             $player->getWorld()->addParticle($player->getPosition(), new HugeExplodeParticle());
             $player->getWorld()->addSound($player->getPosition(), new PopSound());
         } else {
@@ -133,7 +133,7 @@ class EventListener implements Listener
             }
 
             $newItem = VanillaItems::LIME_DYE();
-            $newItem->setCustomName("§aShow Player");
+            $newItem->setCustomName("§aShow Player §7(Hold / Right Click)");
             $player->getInventory()->setItem(0, $newItem);
 
             $player->sendMessage(MG::RED . "All players have been hidden.");
