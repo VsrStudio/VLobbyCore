@@ -20,3 +20,7 @@ Replica Venity Network LobbyCore
 - [X] Profile Stats and Xbox Profile
 - [X] Vip Chat Support
 - [X] Easy Stup
+
+# Price 
+- $3 usd
+- Rp15.000
