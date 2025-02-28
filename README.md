@@ -7,6 +7,7 @@ Replica Venity Network LobbyCore
 - [X] 5 Items Like Venity
 - [X] Commands Support
 - [X] Permission Support
+- [X] Custom Join Massage
 - [X] Easy Stup
 
 # Premium Feature
@@ -15,8 +16,10 @@ Replica Venity Network LobbyCore
 - [X] 5 Items Like Venity
 - [X] Commands Support
 - [X] Permission Support
+- [X] Custom Join Massage
 - [X] FriendSystem Add
 - [X] Games UI Count
+- [X] Protection Item And Lobby
 - [X] Profile Stats and Xbox Profile
 - [X] Vip Chat Support
 - [X] Easy Stup
