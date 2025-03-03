@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace VsrStudio\VLC\libs\davidglitch04\libEco;
+namespace VsrStudio\VLC\libs\libEco;
 
 use Closure;
 use cooldogedev\BedrockEconomy\api\BedrockEconomyAPI;
 use cooldogedev\BedrockEconomy\libs\cooldogedev\libSQL\context\ClosureContext;
-use VsrStudio\VLC\libs\davidglitch04\libEco\Utils\Utils;
+use VsrStudio\VLC\libs\libEco\Utils\Utils;
 use onebone\economyapi\EconomyAPI;
 use pocketmine\player\Player;
 use pocketmine\Server as PMServer;
