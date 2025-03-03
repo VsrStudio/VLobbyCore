@@ -14,5 +14,8 @@ Replica Venity Network LobbyCore
 - [X] Profile Stats
 - [X] Easy Stup
 
-# PERMISSION
+# Permission
 - vipchat.command
+
+# Screenshot
+![Screenshot](https://github.com/VsrStudio/VLobbyCore/blob/main/screenshot.png)
