@@ -1,0 +1,15 @@
+name: VLobbyCore
+main: VsrStudio\VLC\LobbyCore
+version: 1.0.0
+api: 5.0.0
+author: VsrStudio
+website: vststudio.web.id
+
+commands:
+  hub:
+    description: Hub command
+    permission: lobbycore.command.hub
+
+permissions:
+  lobbycore.command.hub:
+    default: false
