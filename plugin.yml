@@ -6,10 +6,13 @@ author: VsrStudio
 website: vststudio.web.id
 
 commands:
-  hub:
-    description: Hub command
-    permission: lobbycore.command.hub
+  vchat:
+    description: "Send VIP chat messages"
+    usage: "/vchat <message>"
+    aliases: ["vc"]
+    permission: vipchat.command
 
 permissions:
-  lobbycore.command.hub:
-    default: false
+  vipchat.command:
+    description: "Using VIP Chat"
+    default: op
