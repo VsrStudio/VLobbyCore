@@ -13,11 +13,11 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 
-use VsrStudio\VLC\libs\davidglitch04\libEco\libEco;
-use VsrStudio\VLC\libs\Vecnavium\FormsUI\Form;
-use VsrStudio\VLC\libs\Vecnavium\FormsUI\FormAPI;
-use VsrStudio\VLC\libs\Vecnavium\FormsUI\SimpleForm;
-use VsrStudio\VLC\libs\Vecnavium\FormsUI\CustomForm;
+use VsrStudio\VLC\libs\libEco\libEco;
+use VsrStudio\VLC\libs\libForm\Form;
+use VsrStudio\VLC\libs\libForm\FormAPI;
+use VsrStudio\VLC\libs\libForm\SimpleForm;
+use VsrStudio\VLC\libs\libForm\CustomForm;
 
 use VsrStudio\VLC\LobbyCore;
 
