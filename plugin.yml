@@ -4,14 +4,7 @@ version: 1.0.0
 api: 5.0.0
 author: VsrStudio
 website: vststudio.web.id
-softdepend: Parties, SimpleClorhes
-
-commands:
-  vchat:
-    description: "Send VIP chat messages"
-    usage: "/vchat <message>"
-    aliases: ["vc"]
-    permission: vipchat.command
+softdepend: [Parties, SimpleClothes]
 
 permissions:
   vipchat.command:
