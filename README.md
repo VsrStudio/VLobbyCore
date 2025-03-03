@@ -14,6 +14,10 @@ Replica Venity Network LobbyCore
 - [X] Profile Stats
 - [X] Easy Stup
 
+# Dependencies
+- [SimpleClothes](https://github.com/VsrStudio/SimpleClothes/tree/main)
+- [Parties](https://github.com/didacdelolmo/Parties)
+
 # Permission
 - vipchat.command
 
