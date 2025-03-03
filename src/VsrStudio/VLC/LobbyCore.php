@@ -11,8 +11,7 @@ use pocketmine\utils\TextFormat as MG;
 use VsrStudio\VLC\event\EventListener;
 use VsrStudio\VLC\event\Protection;
 
-use VsrStudio\VLC\commands\HubCommand;
-use VsrStudio\VLC\commands\ItemCommand;
+use VsrStudio\VLC\commands\VIPChatCommand;
 
 use VsrStudio\VLC\ui\UI;
 
@@ -32,7 +31,7 @@ class LobbyCore extends PluginBase implements Listener {
         $this->getLogger()->info(MG::GREEN . "Ventiy Network LobbyCore enabled successfully, plugin made by VsrSrudio");
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $this->getServer()->getPluginManager()->registerEvents(new Protection(), $this);
-        $this->getServer()->getCommandMap()->register("hub", new HubCommand());
+        $this->getServer()->getCommandMap()->register("vchat", new VIPChatCommand());
         $this->saveResource("config.yml");
     }
 
