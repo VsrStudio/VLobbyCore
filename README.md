@@ -1,8 +1,8 @@
 # VLobbyCore
 Replica Venity Network LobbyCore
 
-# Premium Feature
-- [ ] Vip Chat Add
+# Feature
+- [X] Vip Chat Add
 - [X] LobbyCore
 - [X] 5 Items Like Venity
 - [X] Commands Support
@@ -13,3 +13,6 @@ Replica Venity Network LobbyCore
 - [X] Protection Item And Lobby
 - [X] Profile Stats
 - [X] Easy Stup
+
+# PERMISSION
+- vipchat.command
