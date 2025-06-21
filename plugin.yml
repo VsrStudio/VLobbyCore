@@ -10,3 +10,6 @@ permissions:
   vipchat.command:
     description: "Using VIP Chat"
     default: op
+  protection.command:
+    description: "protection on off"
+    default: op

@@ -2,61 +2,66 @@
 
 namespace VsrStudio\VLC\event;
 
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat as Color;
-use pocketmine\utils\Config;
-use pocketmine\permission\DefaultPermissions;
-
+use pocketmine\event\Listener;
 use VsrStudio\VLC\LobbyCore;
 
-class Protection implements \pocketmine\event\Listener {
+class Protection implements Listener {
 
-	public function onDamage(\pocketmine\event\entity\EntityDamageEvent $ev) {
-		$pl = $ev->getEntity();
-		if ($pl->getWorld() === Server::getInstance ()->getWorldManager()->getDefaultWorld()) {
-			    $ev->cancel();
-		}
-	}
-	
-	public function onExplosion(\pocketmine\event\entity\EntityExplodeEvent $ev) {
-		$ev->cancel();
-		
-	}
-	
-	public function onBreak(\pocketmine\event\block\BlockBreakEvent $ev) {
-		$pl = $ev->getPlayer();
-		if ($pl->getWorld() === Server::getInstance ()->getWorldManager()->getDefaultWorld()) {
-            if (!$pl->hasPermission("lobbycore.build") && !$pl->hasPermission(DefaultPermissions::ROOT_OPERATOR)) {
-				$ev->cancel();
-                $pl->sendPopup("§cYou have don't permissions for break blocks");
-			} else {
-            }
-		}
-	}
-	
-	public function onPlace(\pocketmine\event\block\BlockPlaceEvent $ev) {
-		$pl = $ev->getPlayer();
-		if ($pl->getWorld() === Server::getInstance ()->getWorldManager()->getDefaultWorld()) {
-            if (!$pl->hasPermission("lobbycore.build") && !$pl->hasPermission(DefaultPermissions::ROOT_OPERATOR)) {
-				$ev->cancel();
-                $pl->sendPopup("§cYou have don't permissions for place blocks");
-			} else {
-			}
-		}
-	}
-	
-	public function onDrop(\pocketmine\event\player\PlayerDropItemEvent $ev) {
-		$pl = $ev->getPlayer();
-		if ($pl->getWorld() === Server::getInstance ()->getWorldManager()->getDefaultWorld()) {
-			$ev->cancel();
-		}
-	}
+    public static bool $protectionEnabled = true;
 
-	public function onExhaust(\pocketmine\event\player\PlayerExhaustEvent $ev) {
-		$pl = $ev->getPlayer();
-		if ($pl->getWorld() === Server::getInstance ()->getWorldManager()->getDefaultWorld()) {
-			$ev->cancel();
-		}
-	}
+    public static function toggleProtection(): bool {
+        self::$protectionEnabled = !self::$protectionEnabled;
+        return self::$protectionEnabled;
+    }
+
+    public function onDamage(\pocketmine\event\entity\EntityDamageEvent $ev): void {
+        if (!self::$protectionEnabled) return;
+        $pl = $ev->getEntity();
+        if ($pl instanceof Player && $pl->getWorld() === Server::getInstance()->getWorldManager()->getDefaultWorld()) {
+            $ev->cancel();
+        }
+    }
+
+    public function onExplosion(\pocketmine\event\entity\EntityExplodeEvent $ev): void {
+        if (self::$protectionEnabled) {
+            $ev->cancel();
+        }
+    }
+
+    public function onBreak(\pocketmine\event\block\BlockBreakEvent $ev): void {
+        if (!self::$protectionEnabled) return;
+        $pl = $ev->getPlayer();
+        if ($pl->getWorld() === Server::getInstance()->getWorldManager()->getDefaultWorld()) {
+            $ev->cancel();
+            $pl->sendMessage("§c[ ! ] You can't destroy blocks");
+        }
+    }
+
+    public function onPlace(\pocketmine\event\block\BlockPlaceEvent $ev): void {
+        if (!self::$protectionEnabled) return;
+        $pl = $ev->getPlayer();
+        if ($pl->getWorld() === Server::getInstance()->getWorldManager()->getDefaultWorld()) {
+            $ev->cancel();
+            $pl->sendMessage("§c[ ! ] You can't place blocks");
+        }
+    }
+
+    public function onDrop(\pocketmine\event\player\PlayerDropItemEvent $ev): void {
+        if (!self::$protectionEnabled) return;
+        $pl = $ev->getPlayer();
+        if ($pl->getWorld() === Server::getInstance()->getWorldManager()->getDefaultWorld()) {
+            $ev->cancel();
+        }
+    }
+
+    public function onExhaust(\pocketmine\event\player\PlayerExhaustEvent $ev): void {
+        if (!self::$protectionEnabled) return;
+        $pl = $ev->getPlayer();
+        if ($pl->getWorld() === Server::getInstance()->getWorldManager()->getDefaultWorld()) {
+            $ev->cancel();
+        }
+    }
 }

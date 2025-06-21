@@ -32,6 +32,7 @@ class LobbyCore extends PluginBase implements Listener {
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $this->getServer()->getPluginManager()->registerEvents(new Protection(), $this);
         $this->getServer()->getCommandMap()->register("vchat", new VIPChatCommand());
+	$this->getServer()->getCommandMap()->register("protection", new \VsrStudio\VLC\commands\ToggleProtectionCommand());
         $this->saveResource("config.yml");
     }
 
