@@ -3,14 +3,13 @@ Replica Venity Network LobbyCore
 
 # Feature
 - [X] Vip Chat Add
-- [X] LobbyCore
 - [X] 5 Items Like Venity
 - [X] Commands Support
 - [X] Permission Support
 - [X] Custom Join Massage
 - [X] FriendSystem Add
 - [X] Games UI Count
-- [X] Protection Item And Lobby
+- [X] Simple Protection
 - [X] Profile Stats
 - [X] Easy Stup
 
@@ -20,6 +19,7 @@ Replica Venity Network LobbyCore
 
 # Permission
 - vipchat.command
+- protection.command
 
 # Screenshot
 ![Screenshot](https://github.com/VsrStudio/VLobbyCore/blob/main/screenshot.png)
