@@ -1,6 +1,6 @@
 name: VLobbyCore
 main: VsrStudio\VLC\LobbyCore
-version: 1.0.0
+version: 1.0.1
 api: 5.0.0
 author: VsrStudio
 website: vststudio.web.id
