@@ -2,8 +2,8 @@
 
 namespace VsrStudio\VLC\event;
 
-use VsrStudio\api\ItemManager;
-use VsrStudio\block\RegisterBlocks;
+use pocketmine\item\StringToItemParser;
+use pocketmine\item\LegacyStringToItemParser;
 use pocketmine\block\Block;
 use pocketmine\block\BlockTypeIds;
 use pocketmine\block\VanillaBlocks;
@@ -25,9 +25,9 @@ use pocketmine\world\particle\HugeExplodeParticle;
 use pocketmine\world\sound\PopSound;
 use pocketmine\block\utils\MobHeadType;
 
-use VsrStudio\VLC\libs\Vecnavium\FormsUI\Form;
-use VsrStudio\VLC\libs\Vecnavium\FormsUI\FormAPI;
-use VsrStudio\VLC\libs\Vecnavium\FormsUI\SimpleForm;
+use jojoe77777\FormAPI\Form;
+use jojoe77777\FormAPI\FormAPI;
+use jojoe77777\FormAPI\SimpleForm;
 use VsrStudio\VLC\LobbyCore;
 
 class EventListener implements Listener
@@ -36,112 +36,129 @@ class EventListener implements Listener
     private $plugin;
     private array $hiddenPlayers = [];
 
-    public function onJoin(PlayerJoinEvent $event)
-    {
-
+    public function onJoin(PlayerJoinEvent $event) : void {
         $player = $event->getPlayer();
-        $name = $player->getName();
-
         $event->setJoinMessage("");
-        $this->plugin = LobbyCore::getInstance();
-        Server::getInstance()->broadcastMessage(str_replace(["{player}"], [$player->getName()], $this->plugin->getConfig()->get("Join-Message")));
+
+        Server::getInstance()->broadcastMessage(str_replace(
+            ["{player}"],
+            [$player->getName()],
+            $this->plugin->getConfig()->get("Join-Message")
+        ));
         $player->teleport(Server::getInstance()->getWorldManager()->getDefaultWorld()->getSafeSpawn());
 
-        $item1 = VanillaItems::DYE()->setColor(DyeColor::GRAY());
-        $item1->setCustomName("§7Hide Player §7(Hold / Right Click)");
+        $items = $this->plugin->getConfig()->get("items", []);
+        foreach($items as $key => $data){
+            $item = $this->parseItem($data["item"] ?? "stone");
+            if($item === null) continue;
 
-        $item2 = VanillaBlocks::POPPY()->asItem();
-        $item2->setCustomName("§cCosmetic §7(Hold / Right Click)");
+            if(isset($data["name"])) $item->setCustomName($data["name"]);
+            $slot = $data["slot"] ?? 0;
 
-        $item3 = VanillaItems::COMPASS();
-        $item3->setCustomName("§aServer Selector §7(Hold / Right Click)");
-
-        $item4 = VanillaItems::POPPED_CHORUS_FRUIT();
-        $item4->setCustomName("§dSocial §7(Hold / Right Click)");
-
-        $item5 = VanillaBlocks::MOB_HEAD()->setMobHeadType(MobHeadType::PLAYER())->asItem();
-        $item5->setCustomName("§eProfile §7(Hold / Right Click)");
-
-        $player->getInventory()->setItem(0, $item1);
-        $player->getInventory()->setItem(1, $item2);
-        $player->getInventory()->setItem(4, $item3);
-        $player->getInventory()->setItem(7, $item4);
-        $player->getInventory()->setItem(8, $item5);
+            $player->getInventory()->setItem($slot, $item);
+        }
     }
 
-    public function onQuit(PlayerQuitEvent $event){
-
+    public function onQuit(PlayerQuitEvent $event) : void {
         $player = $event->getPlayer();
         unset($this->hiddenPlayers[$player->getName()]);
 
         $event->setQuitMessage("");
-        Server::getInstance()->broadcastMessage(str_replace(["{player}"], [$player->getName()], $this->plugin->getConfig()->get("Quit-Message")));
+        Server::getInstance()->broadcastMessage(str_replace(
+            ["{player}"],
+            [$player->getName()],
+            $this->plugin->getConfig()->get("Quit-Message")
+        ));
     }
-	
-    public function onClick(PlayerInteractEvent $event)
-    {
-    $player = $event->getPlayer();
-    $item = $player->getInventory()->getItemInHand();
-    $itemName = $item->getCustomName();
 
-    switch ($itemName) {
-        case "§7Hide Player §7(Hold / Right Click)":
-        case "§aShow Player §7(Hold / Right Click)":
-        $this->togglePlayerVisibility($player);
-        break;
+    public function onClick(PlayerInteractEvent $event) : void {
+		$player = $event->getPlayer();
+			$item = $player->getInventory()->getItemInHand();
+		$name = $item->getCustomName();
 
-        case "§cCosmetic §7(Hold / Right Click)":
-            $this->plugin->getServer()->getCommandMap()->dispatch($player, "sc");
-            break;
+		$items = $this->plugin->getConfig()->get("items", []);
+		foreach($items as $data){
+			if(isset($data["name"]) && $data["name"] === $name){
+				$action = $data["action"] ?? null;
+				if($action === null) return;
 
-        case "§aServer Selector §7(Hold / Right Click)":
-            LobbyCore::getUI()->games($player);
-            break;
+				switch ($action) {
+					case "toggle-visibility":
+					$this->togglePlayerVisibility($player);
+					break;
 
-        case "§dSocial §7(Hold / Right Click)":
-            LobbyCore::getUI()->SocialMenu($player);
-            break;
+					case "command":
+					if(isset($data["command"])){
+						$this->plugin->getServer()->getCommandMap()->dispatch($player, $data["command"]);
+					}
+					break;
 
-        case "§eProfile §7(Hold / Right Click)":
-            LobbyCore::getUI()->openProfileForm($player);
-            break;
-    }
-}
+					case "open-ui":
+					if(isset($data["ui"])){
+						switch ($data["ui"]) {
+							case "server-selector":
+                                LobbyCore::getUI()->games($player);
+                                break;
+                            case "social":
+                                LobbyCore::getUI()->SocialMenu($player);
+                                break;
+                            case "profile":
+                                LobbyCore::getUI()->openProfileForm($player);
+                                break;
+						}
+                    }
+                    break;
+				}
+			}
+		}
+	}
 
-    private function togglePlayerVisibility(Player $player)
-	{
+    private function togglePlayerVisibility(Player $player) : void {
         $name = $player->getName();
 
         if (isset($this->hiddenPlayers[$name])) {
-
             unset($this->hiddenPlayers[$name]);
             foreach (Server::getInstance()->getOnlinePlayers() as $p) {
                 $player->showPlayer($p);
             }
 
-            $newItem = VanillaItems::DYE()->setColor(DyeColor::GRAY());
-            $newItem->setCustomName("§7Hide Player §7(Hold / Right Click)");
-            $player->getInventory()->setItem(0, $newItem);
-
-            $player->sendMessage(MG::GREEN . "All players have been show.");
-            $player->getWorld()->addParticle($player->getPosition(), new HugeExplodeParticle());
-            $player->getWorld()->addSound($player->getPosition(), new PopSound());
-        } else {
-
-            $this->hiddenPlayers[$name] = true;
-            foreach (Server::getInstance()->getOnlinePlayers() as $p) {
-                if ($p !== $player) {
-                    $player->hidePlayer($p);
-                }
+            $item = $this->parseItem("dye:gray");
+            if($item !== null){
+                $item->setCustomName("§7Hide Player §7(Hold / Right Click)");
+                $player->getInventory()->setItem(0, $item);
             }
 
-            $newItem = VanillaItems::DYE()->setColor(DyeColor::LIME());
-            $newItem->setCustomName("§aShow Player §7(Hold / Right Click)");
-            $player->getInventory()->setItem(0, $newItem);
+            $player->sendMessage(MG::GREEN . "All players have been shown.");
+        } else {
+            $this->hiddenPlayers[$name] = true;
+            foreach (Server::getInstance()->getOnlinePlayers() as $p) {
+                if ($p !== $player) $player->hidePlayer($p);
+            }
+
+            $item = $this->parseItem("dye:lime");
+            if($item !== null){
+                $item->setCustomName("§aShow Player §7(Hold / Right Click)");
+                $player->getInventory()->setItem(0, $item);
+            }
 
             $player->sendMessage(MG::RED . "All players have been hidden.");
-            $player->getWorld()->addParticle($player->getPosition(), new HugeExplodeParticle());
-            $player->getWorld()->addSound($player->getPosition(), new PopSound());
         }
+
+        $player->getWorld()->addParticle($player->getPosition(), new HugeExplodeParticle());
+        $player->getWorld()->addSound($player->getPosition(), new PopSound());
+    }
+
+    /**
+     * Parse item string ke objek Item (support StringToItemParser & LegacyStringToItemParser)
+     */
+    private function parseItem(string $name){
+        $parser = StringToItemParser::getInstance();
+        $legacy = LegacyStringToItemParser::getInstance();
+
+        $item = $parser->parse($name);
+        if($item !== null){
+            return $item;
+        }
+        return $legacy->parse($name);
     }
 }
