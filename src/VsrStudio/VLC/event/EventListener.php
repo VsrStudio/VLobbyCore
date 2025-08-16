@@ -36,10 +36,16 @@ use VsrStudio\VLC\LobbyCore;
 class EventListener implements Listener
 {
 
-    private $plugin;
+    //private $plugin;
     private array $hiddenPlayers = [];
 	private array $jumps = [];
     private array $tasks = [];
+    
+    private LobbyCore $plugin;
+
+    public function __construct(LobbyCore $plugin){
+        $this->plugin = $plugin;
+    }
 
     public function onJoin(PlayerJoinEvent $event) : void {
         $player = $event->getPlayer();
@@ -66,6 +72,7 @@ class EventListener implements Listener
 				$this->createOrUpdateScoreboard($player);      
 				$this->startAutoUpdate($player);
         }
+    }
     }
 
     public function onQuit(PlayerQuitEvent $event) : void {
@@ -139,7 +146,7 @@ class EventListener implements Listener
                 $player->showPlayer($p);
             }
 
-            $item = $this->parseItem("dye:gray");
+            $item = $this->parseItem("gray_dye");
             if($item !== null){
                 $item->setCustomName("§7Hide Player §7(Hold / Right Click)");
                 $player->getInventory()->setItem(0, $item);
@@ -152,7 +159,7 @@ class EventListener implements Listener
                 if ($p !== $player) $player->hidePlayer($p);
             }
 
-            $item = $this->parseItem("dye:lime");
+            $item = $this->parseItem("lime_dye");
             if($item !== null){
                 $item->setCustomName("§aShow Player §7(Hold / Right Click)");
                 $player->getInventory()->setItem(0, $item);
@@ -203,13 +210,17 @@ class EventListener implements Listener
     private function startAutoUpdate(Player $player): void {
         $name = $player->getName();
         if(isset($this->tasks[$name])){
-            $this->plugin->getScheduler()->cancelTask($this->tasks[$name]);
+    $this->tasks[$name]->cancel();
+    unset($this->tasks[$name]);
         }
+        //if(isset($this->tasks[$name])){      
+            //$this->plugin->getScheduler()->cancelTask($this->tasks[$name]);
+        //}
 
         $interval = (int)$this->plugin->getConfig()->getNested("scoreboard.update-interval-ticks", 40);
-        $this->tasks[$name] = $this->plugin->getScheduler()->scheduleRepeatingTask(new ClosureTask(
-            function() use ($player): void {
-                if(!$player->isConnected()) return;
+        $task = $this->plugin->getScheduler()->scheduleRepeatingTask(
+    new ClosureTask(function() use ($player): void {
+        if(!$player->isConnected()) return;
                 if(!$this->plugin->getConfig()->getNested("scoreboard.enabled", true)){
                     if(ScoreFactory::hasObjective($player)){
                         ScoreFactory::removeObjective($player, true);
@@ -217,8 +228,11 @@ class EventListener implements Listener
                     return;
                 }
                 $this->createOrUpdateScoreboard($player);
-            }
-        ), max(1, $interval))->getTaskId();
+    }),
+    max(1, $interval)
+);
+
+$this->tasks[$player->getName()] = $task;
     }
 
     private function applyPlaceholders(Player $player, string $line): string {
