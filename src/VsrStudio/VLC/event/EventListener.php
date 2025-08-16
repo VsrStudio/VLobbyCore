@@ -1,6 +1,6 @@
 <?php
 
-namespace VsrStudio\VLC\event;
+namespace VsrStudio\LobbySystem\event;
 
 use pocketmine\item\StringToItemParser;
 use pocketmine\item\LegacyStringToItemParser;
@@ -10,6 +10,7 @@ use pocketmine\block\VanillaBlocks;
 use pocketmine\data\bedrock\item\BlockItemIdMap;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerJumpEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\item\Item;
 use pocketmine\item\ItemIdentifier;
@@ -24,10 +25,12 @@ use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\world\particle\HugeExplodeParticle;
 use pocketmine\world\sound\PopSound;
 use pocketmine\block\utils\MobHeadType;
+use pocketmine\scheduler\ClosureTask;
 
 use jojoe77777\FormAPI\Form;
 use jojoe77777\FormAPI\FormAPI;
 use jojoe77777\FormAPI\SimpleForm;
+use jackmd\scorefactory\ScoreFactory;
 use VsrStudio\VLC\LobbyCore;
 
 class EventListener implements Listener
@@ -35,6 +38,8 @@ class EventListener implements Listener
 
     private $plugin;
     private array $hiddenPlayers = [];
+	private array $jumps = [];
+    private array $tasks = [];
 
     public function onJoin(PlayerJoinEvent $event) : void {
         $player = $event->getPlayer();
@@ -56,6 +61,10 @@ class EventListener implements Listener
             $slot = $data["slot"] ?? 0;
 
             $player->getInventory()->setItem($slot, $item);
+			
+			if($this->plugin->getConfig()->getNested("scoreboard.enabled", true)){  
+				$this->createOrUpdateScoreboard($player);      
+				$this->startAutoUpdate($player);
         }
     }
 
@@ -69,6 +78,14 @@ class EventListener implements Listener
             [$player->getName()],
             $this->plugin->getConfig()->get("Quit-Message")
         ));
+		if(isset($this->tasks[$player->getName()])){
+            $this->plugin->getScheduler()->cancelTask($this->tasks[$player->getName()]);
+            unset($this->tasks[$player->getName()]);
+        }
+
+        if(ScoreFactory::hasObjective($player)){
+            ScoreFactory::removeObjective($player, true);
+		}
     }
 
     public function onClick(PlayerInteractEvent $event) : void {
@@ -160,5 +177,96 @@ class EventListener implements Listener
             return $item;
         }
         return $legacy->parse($name);
+    }
+
+	public function onJump(PlayerJumpEvent $event): void {
+        $name = $event->getPlayer()->getName();
+        $this->jumps[$name] = ($this->jumps[$name] ?? 0) + 1;
+    }
+
+    private function createOrUpdateScoreboard(Player $player): void {
+        $title = (string)$this->plugin->getConfig()->getNested("scoreboard.title", "§l§aLobby");
+        $lines = (array)$this->plugin->getConfig()->getNested("scoreboard.lines", []);
+
+        ScoreFactory::setObjective($player, $title);
+        ScoreFactory::sendObjective($player);
+
+        $lineNum = count($lines);
+        foreach($lines as $raw){
+            $text = $this->applyPlaceholders($player, $raw);
+            $entry = ScoreFactory::setScoreLine($player, $lineNum, $text);
+            ScoreFactory::sendLine($player, $lineNum, $entry);
+            $lineNum--;
+        }
+    }
+
+    private function startAutoUpdate(Player $player): void {
+        $name = $player->getName();
+        if(isset($this->tasks[$name])){
+            $this->plugin->getScheduler()->cancelTask($this->tasks[$name]);
+        }
+
+        $interval = (int)$this->plugin->getConfig()->getNested("scoreboard.update-interval-ticks", 40);
+        $this->tasks[$name] = $this->plugin->getScheduler()->scheduleRepeatingTask(new ClosureTask(
+            function() use ($player): void {
+                if(!$player->isConnected()) return;
+                if(!$this->plugin->getConfig()->getNested("scoreboard.enabled", true)){
+                    if(ScoreFactory::hasObjective($player)){
+                        ScoreFactory::removeObjective($player, true);
+                    }
+                    return;
+                }
+                $this->createOrUpdateScoreboard($player);
+            }
+        ), max(1, $interval))->getTaskId();
+    }
+
+    private function applyPlaceholders(Player $player, string $line): string {
+        $srv = $this->plugin->getServer();
+        $rank = $this->getRank($player) ?? "Default";
+        $item = $player->getInventory()->getItemInHand();
+        $itemId = method_exists($item, 'getTypeId') ? (string)$item->getTypeId() : "0";
+
+        $map = [
+            "{player}"      => $player->getName(),
+            "{online}"      => (string)count($srv->getOnlinePlayers()),
+            "{ping}"        => (string)$player->getNetworkSession()->getPing(),
+            "{server-name}" => (string)$this->plugin->getConfig()->get("server-name", "Lobby"),
+            "{rank}"        => $rank,
+            "{item-id}"     => $itemId,
+            "{tps}"         => number_format($srv->getTicksPerSecondAverage(), 2),
+            "{jump}"        => (string)($this->jumps[$player->getName()] ?? 0),
+            "{x}"           => (string)intval($player->getPosition()->getX()),
+            "{y}"           => (string)intval($player->getPosition()->getY()),
+            "{z}"           => (string)intval($player->getPosition()->getZ()),
+        ];
+        return strtr($line, $map);
+    }
+
+    private function getRank(Player $player): ?string {
+        $pm = $this->plugin->getServer()->getPluginManager();
+
+        $purePerms = $pm->getPlugin("PurePerms");
+        if($purePerms !== null && method_exists($purePerms, 'getUserDataMgr')){
+            $group = $purePerms->getUserDataMgr()->getGroup($player);
+            if($group !== null) return $group->getName();
+        }
+
+        $rankSystem = $pm->getPlugin("RankSystem");
+        if($rankSystem !== null && method_exists($rankSystem, 'getSessionManager')){
+            $session = $rankSystem->getSessionManager()->get($player);
+            if($session !== null && method_exists($session, 'getRanks')){
+                $names = [];
+                foreach($session->getRanks() as $r){
+                    if(method_exists($r, 'getName')){
+                        $names[] = $r->getName();
+                    }
+                }
+                if(!empty($names)){
+                    return implode(", ", $names);
+                }
+            }
+        }
+        return null;
     }
 }
