@@ -18,6 +18,8 @@ use VsrStudio\VLC\libs\libForm\Form;
 use VsrStudio\VLC\libs\libForm\FormAPI;
 use VsrStudio\VLC\libs\libForm\SimpleForm;
 use VsrStudio\VLC\libs\libForm\CustomForm;
+use jasonw4331\libpmquery\PMQuery;
+use jasonw4331\libpmquery\PMQueryException;
 
 use VsrStudio\VLC\LobbyCore;
 
@@ -198,40 +200,69 @@ private function openFriendRequests(Player $player): void {
     $player->sendForm($form);    
 }    
 
-private function removeFriend(Player $player, string $friend): void {
-    $playerFile = $this->getPlayerConfig($player->getName());
-    $friends = $playerFile->get("Friend", []);
-
-    if (!in_array($friend, $friends, true)) {
-        $player->sendMessage("You are not friends with $friend.");
-        return;
-    }
-
-    unset($friends[array_search($friend, $friends, true)]);
-    $playerFile->set("Friend", array_values($friends));
-    $playerFile->save();
-
-    $player->sendMessage("You removed $friend from your friend list.");
-}
-
 private function acceptFriendRequest(Player $player, string $friend): void {
     $playerFile = $this->getPlayerConfig($player->getName());
+    $friendFile = $this->getPlayerConfig($friend);
+
     $friends = $playerFile->get("Friend", []);
     $requests = $playerFile->get("Invitations", []);
 
     if (!in_array($friend, $requests, true)) {
-        $player->sendMessage("$friend did not send you a friend request.");
+        $player->sendMessage("§c$friend did not send you a friend request.");
         return;
     }
 
-    $friends[] = $friend;
+    if (!in_array($friend, $friends, true)) {
+        $friends[] = $friend;
+    }
+
+    $friendFriends = $friendFile->get("Friend", []);
+    if (!in_array($player->getName(), $friendFriends, true)) {
+        $friendFriends[] = $player->getName();
+    }
+
     unset($requests[array_search($friend, $requests, true)]);
 
     $playerFile->set("Friend", array_values($friends));
     $playerFile->set("Invitations", array_values($requests));
     $playerFile->save();
 
-    $player->sendMessage("You are now friends with $friend.");
+    $friendFile->set("Friend", array_values($friendFriends));
+    $friendFile->save();
+
+    $player->sendMessage("§aYou are now friends with $friend.");
+    $target = Server::getInstance()->getPlayerExact($friend);
+    if ($target !== null) {
+        $target->sendMessage("§aYou are now friends with {$player->getName()}.");
+    }
+}
+
+private function removeFriend(Player $player, string $friend): void {
+    $playerFile = $this->getPlayerConfig($player->getName());
+    $friendFile = $this->getPlayerConfig($friend);
+
+    $friends = $playerFile->get("Friend", []);
+    $friendFriends = $friendFile->get("Friend", []);
+
+    if (!in_array($friend, $friends, true)) {
+        $player->sendMessage("§cYou are not friends with $friend.");
+        return;
+    }
+
+    unset($friends[array_search($friend, $friends, true)]);
+    unset($friendFriends[array_search($player->getName(), $friendFriends, true)]);
+
+    $playerFile->set("Friend", array_values($friends));
+    $playerFile->save();
+
+    $friendFile->set("Friend", array_values($friendFriends));
+    $friendFile->save();
+
+    $player->sendMessage("§eYou removed $friend from your friend list.");
+    $target = Server::getInstance()->getPlayerExact($friend);
+    if ($target !== null) {
+        $target->sendMessage("§e{$player->getName()} removed you from their friend list.");
+    }
 }
 
 /**
@@ -245,10 +276,9 @@ private function getPlayerConfig(string $playerName): Config {
         $form = new SimpleForm(function(Player $player, int $data = null){
             if($data === null){
                 return true;
-            }
-            switch($data){
+            }    switch($data){
                 case 0:
-                    $this->plugin->getServer()->getCommandMap()->dispatch($player, "party");
+                    $this->plugin->getServer()->getCommandM()->dispatch($player, "party");
                 break;
                 case 1:
                 $this->openFriendMenu($player);
@@ -265,6 +295,29 @@ private function getPlayerConfig(string $playerName): Config {
         $form->sendToPlayer($player);
     }
 
+    /**
+     * Function to get number of players from another server using libpmquery
+     */
+    private function pingServer(string $ip, int $port): int {
+        try {
+            $query = PMQuery::query($ip, $port);
+            if(isset($query["Players"])){
+                return (int)$query["Players"];
+            }
+        } catch (PMQueryException $e) {
+            $this->plugin->getLogger()->warning("Gagal ping server $ip:$port - " . $e->getMessage());
+        }
+        return -1;
+    }
+
+    private function transferToServer(Player $player, string $ip, int $port): void {
+        $pk = new TransferPacket();
+        $pk->address = $ip;
+        $pk->port = $port;
+        $pk->reloadWorld = false;
+        $player->getNetworkSession()->sendDataPacket($pk);
+    }
+
     public function games(Player $player): void {
         $form = new SimpleForm(function (Player $player, $data) {
             if ($data === null) return;
@@ -278,7 +331,7 @@ private function getPlayerConfig(string $playerName): Config {
                 $totalPlayers = $this->getWorldPlayerCount($gameConfig["worlds"] ?? []);
                 $player->sendMessage("§l§c[Game] > §r§cSedang Mentransfer Ke " . ucfirst($data) . "!");
                 $player->sendMessage("§l§c[Game] > §r§bPemain di dalam: $totalPlayers");
-                
+
                 if (isset($gameConfig["command"])) {
                     Server::getInstance()->dispatchCommand($player, $gameConfig["command"]);
                 }
@@ -325,14 +378,6 @@ private function getPlayerConfig(string $playerName): Config {
         $player->sendForm($form);
     }
 
-    private function transferToServer(Player $player, string $ip, int $port): void {
-        $pk = new TransferPacket();
-        $pk->address = $ip;
-        $pk->port = $port;
-        $pk->reloadWorld = false;
-        $player->getNetworkSession()->sendDataPacket($pk);
-    }
-
     private function getWorldPlayerCount(array $worldNames): int {
         $totalPlayers = 0;
         foreach ($worldNames as $worldName) {
@@ -343,45 +388,7 @@ private function getPlayerConfig(string $playerName): Config {
         }
         return $totalPlayers;
     }
-
-    private function pingServer(string $ip, int $port): int {
-    $socket = @fsockopen("udp://$ip", $port, $errno, $errstr, 1);
-    if (!$socket) return -1;
-
-    stream_set_timeout($socket, 1);
-
-    $challenge = $this->getChallengeToken($socket);
-    if ($challenge === -1) {
-        fclose($socket);
-        return -1;
-    }
-
-    fwrite($socket, "\xFE\xFD\x00" . pack("N", $challenge) . "\x00\x00\x00\x00");
-    $response = fread($socket, 2048);
-    fclose($socket);
-
-    if ($response === false) {
-        return -1;
-    }
-
-    $data = explode("\x00", substr($response, 5));
     
-    // Cek apakah jumlah pemain tersedia dalam data
-    if (isset($data[4]) && is_numeric($data[4])) {
-        return (int)$data[4];
-    }
-
-    return -1;
-    }
-
-    private function getChallengeToken($socket): int {
-    fwrite($socket, "\xFE\xFD\x09\x00\x00\x00\x00");
-    $response = fread($socket, 2048);
-    if ($response === false) return -1;
-
-    return (int)substr($response, 5, 4);
-    }
-
     public function openProfileForm(Player $player): void {
         $form = new SimpleForm(function (Player $player, ?int $data): void {
             if ($data !== null) {
