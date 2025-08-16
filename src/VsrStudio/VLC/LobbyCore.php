@@ -29,7 +29,7 @@ class LobbyCore extends PluginBase implements Listener {
         self::$instance = $this;
         self::$ui = new UI($this);
         $this->getLogger()->info(MG::GREEN . "Ventiy Network LobbyCore enabled successfully, plugin made by VsrSrudio");
-        $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
+        $this->getServer()->getPluginManager()->registerEvents(new EventListener($this), $this);
         $this->getServer()->getPluginManager()->registerEvents(new Protection(), $this);
         $this->getServer()->getCommandMap()->register("vchat", new VIPChatCommand());
 	$this->getServer()->getCommandMap()->register("protection", new \VsrStudio\VLC\commands\ToggleProtectionCommand());
