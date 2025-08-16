@@ -2,15 +2,14 @@
 Replica Venity Network LobbyCore
 
 # Feature
-- [X] Vip Chat Add
-- [X] 5 Items Like Venity
-- [X] Commands Support
-- [X] Permission Support
+- [X] Vip Chat
+- [X] Custom Item
+- [X] FriendSystem
 - [X] Custom Join Massage
-- [X] FriendSystem Add
-- [X] Games UI Count
+- [X] Games UI
+- [X] MultiCount Support
 - [X] Simple Protection
-- [X] Profile Stats
+- [X] Profile Server Stats/Xbox
 - [X] Easy Stup
 
 # Dependencies
