@@ -52,31 +52,31 @@ scoreboard:
 
 # Items Settings
 items:
-  - item: "dye:gray"
+  - item: "gray_dye"
     name: "§7Hide Player §7(Hold / Right Click)"
     slot: 0
     action: "toggle-visibility"
 
   - item: "compass"
     name: "§aServer Selector §7(Hold / Right Click)"
-    slot: 1
+    slot: 4
     action: "open-ui"
     ui: "server-selector"
 
   - item: "popped_chorus_fruit"
     name: "§dSocial §7(Hold / Right Click)"
-    slot: 2
+    slot: 7
     action: "open-ui"
     ui: "social"
 
   - item: "player_head"
     name: "§eProfile §7(Hold / Right Click)"
-    slot: 3
+    slot: 8
     action: "open-ui"
     ui: "profile"
 
   - item: "poppy"
     name: "§cCosmetic §7(Hold / Right Click)"
-    slot: 4
+    slot: 1
     action: "command"
     command: "sc"
