@@ -15,6 +15,11 @@ Replica Venity Network LobbyCore
 # Dependencies
 - [SimpleClothes](https://github.com/VsrStudio/SimpleClothes/tree/main)
 - [Parties](https://github.com/didacdelolmo/Parties)
+  *Virions Depens*
+- [LibEco](https://github.com/MyFreds/libEco)
+- [PMQuery](https://github.com/jasonw4331/libpmquery)
+- [FormAPI](https://github.com/jojoe77777/FormAPI)
+- [Scorefactory](https://github.com/Ifera/ScoreFactory/tree/master)
 
 # Permission
 - vipchat.command
