@@ -14,22 +14,6 @@
 # worlds: ["Lobby", "Survival"] -> Show TotalPlayers in world
 
 games:
-  survival:
-    type: "world"
-    command: "warp Survival"
-    worlds: ["Survival"]
-  vivasmp:
-    type: "world"
-    command: "warp VivaSmp"
-    worlds: ["vsrstudio", "baikbanget"]
-  squidgame:
-    type: "server"
-    ip: "example.com"
-    port: 19132
-  duels:
-    type: "world"
-    command: "duels random"
-    worlds: ["duel1", "duel2", "duel3"]
   bedwars:
     type: "server"
     ip: "bedwars.example.com"
@@ -45,5 +29,54 @@ Join-Message: "§8[§b+§8]§b{player}"
 Quit-Message: "§8[§c-§8]§c{player}"
 
 #Permissions Message Confjg
-
 NotPermissions: "§cYou do not have permissions to use"
+
+server-name: "Lobby-1"
+
+scoreboard:
+  enabled: true           # set false => scoreboard does not appear at all
+  update-interval-ticks: 40   # how often to refresh (2 seconds = 40 ticks)
+  title: "§l§bLobby"
+  lines:
+    - "§7---------------------"
+    - "§ePlayer: §f{player}"
+    - "§eRank: §f{rank}"
+    - "§eOnline: §f{online}"
+    - "§ePing: §f{ping} ms"
+    - "§eTPS: §f{tps}"
+    - "§eItem: §f{item-id}"
+    - "§eJump: §f{jump}"
+    - "§ePos: §f{x}, {y}, {z}"
+    - "§eServer: §f{server-name}"
+    - "§7---------------------"
+
+# Items Settings
+items:
+  - item: "gray_dye"
+    name: "§7Hide Player §7(Hold / Right Click)"
+    slot: 0
+    action: "toggle-visibility"
+
+  - item: "compass"
+    name: "§aServer Selector §7(Hold / Right Click)"
+    slot: 4
+    action: "open-ui"
+    ui: "server-selector"
+
+  - item: "popped_chorus_fruit"
+    name: "§dSocial §7(Hold / Right Click)"
+    slot: 7
+    action: "open-ui"
+    ui: "social"
+
+  - item: "player_head"
+    name: "§eProfile §7(Hold / Right Click)"
+    slot: 8
+    action: "open-ui"
+    ui: "profile"
+
+  - item: "poppy"
+    name: "§cCosmetic §7(Hold / Right Click)"
+    slot: 1
+    action: "command"
+    command: "sc"
