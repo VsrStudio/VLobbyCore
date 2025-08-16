@@ -13,11 +13,11 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 
-use VsrStudio\VLC\libs\libEco\libEco;
-use VsrStudio\VLC\libs\libForm\Form;
-use VsrStudio\VLC\libs\libForm\FormAPI;
-use VsrStudio\VLC\libs\libForm\SimpleForm;
-use VsrStudio\VLC\libs\libForm\CustomForm;
+use davidglitch04\libEco\libEco;
+use jojoe77777\FormAPI\Form;
+use jojoe77777\FormAPI\FormAPI;
+use jojoe77777\FormAPI\SimpleForm;
+use jojoe77777\FormAPI\CustomForm;
 use jasonw4331\libpmquery\PMQuery;
 use jasonw4331\libpmquery\PMQueryException;
 
@@ -276,9 +276,10 @@ private function getPlayerConfig(string $playerName): Config {
         $form = new SimpleForm(function(Player $player, int $data = null){
             if($data === null){
                 return true;
-            }    switch($data){
+            }
+            switch($data){
                 case 0:
-                    $this->plugin->getServer()->getCommandM()->dispatch($player, "party");
+                    $this->plugin->getServer()->getCommandMap()->dispatch($player, "party");
                 break;
                 case 1:
                 $this->openFriendMenu($player);
