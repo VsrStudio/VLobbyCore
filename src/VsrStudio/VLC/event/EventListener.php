@@ -1,6 +1,6 @@
 <?php
 
-namespace VsrStudio\LobbySystem\event;
+namespace VsrStudio\VLC\event;
 
 use pocketmine\item\StringToItemParser;
 use pocketmine\item\LegacyStringToItemParser;
